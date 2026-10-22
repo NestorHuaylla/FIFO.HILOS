@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0b13">
+  <meta name="description" content="Simulador interactivo de planificación FIFO (FCFS): calcula inicio, final, retorno, espera y sus promedios.">
+  <title>FIFO Studio — Simulador de planificación</title>
+
+  <!-- Bootstrap es opcional: el simulador también funciona sin internet. -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="background-grid" aria-hidden="true"></div>
+    <div class="glow glow-one" aria-hidden="true"></div>
+    <div class="glow glow-two" aria-hidden="true"></div>
+    <div class="light-trail trail-one" aria-hidden="true"></div>
+    <div class="light-trail trail-two" aria-hidden="true"></div>
+
+    <header class="topbar content-width">
+      <a class="brand" href="#inicio" aria-label="Ir al inicio de FIFO Studio">
+        <span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>FIFO<span class="brand-light">studio</span></span>
+      </a>
+      <nav class="top-nav" aria-label="Navegación principal">
+        <a href="#simulador">Simulador</a>
+        <a href="#gantt">Diagrama de Gantt</a>
+        <a href="#formulas">Fórmulas</a>
+      </nav>
+      <a href="#simulador" class="header-action">Comenzar <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main id="inicio" class="content-width">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="eyebrow"><span class="live-dot"></span> LABORATORIO DE SISTEMAS OPERATIVOS <span class="eyebrow-arrow">↗</span></div>
+        <h1 id="hero-title">Planificación de procesos,<br><span>más clara que nunca.</span></h1>
+        <p>Experimenta con el algoritmo <strong>FIFO / FCFS</strong>. Edita los tiempos y observa cómo cambian los resultados en tiempo real.</p>
+        <div class="hero-actions">
+          <a class="primary-button" href="#simulador">Abrir simulador <span aria-hidden="true">↗</span></a>
+          <a class="ghost-button" href="#formulas">¿Cómo se calcula? <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="hero-caption"><span class="hero-caption-mark">✓</span> Sin registros <span class="separator">·</span> Sin instalaciones <span class="separator">·</span> Funciona sin conexión</div>
+      </section>
+
+      <section class="workspace" id="simulador" aria-labelledby="section-title">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">01 / ZONA DE TRABAJO</div>
+            <h2 id="section-title">Simulador FIFO <span class="heading-muted">/ FCFS</span></h2>
+            <p>Modifica <strong>Llegada</strong> y <strong>Ejecución</strong>. Las demás columnas se calculan automáticamente.</p>
+          </div>
+          <div class="chip"><span class="chip-dot"></span> Actualización en vivo</div>
+        </div>
+
+        <div class="panel processes-panel">
+          <div class="panel-topline">
+            <div class="panel-title-area">
+              <span class="panel-icon" aria-hidden="true">▦</span>
+              <div>
+                <h3>Tabla de procesos</h3>
+                <p><span id="process-count">4</span> procesos en la simulación</p>
+              </div>
+            </div>
+            <div class="panel-controls">
+              <button class="button-secondary" type="button" id="reset-button" title="Restaurar los cuatro procesos originales"><span aria-hidden="true">↺</span> Restablecer</button>
+              <button class="button-primary" type="button" id="add-button"><span aria-hidden="true">＋</span> Añadir proceso</button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table class="process-table" aria-label="Métricas de planificación FIFO">
+              <thead>
+                <tr>
+                  <th scope="col">Proceso</th>
+                  <th scope="col">Llegada <span class="editable-hint" title="Editable">✎</span></th>
+                  <th scope="col">Ejecución <span class="editable-hint" title="Editable">✎</span></th>
+                  <th scope="col">Inicio</th>
+                  <th scope="col">Final</th>
+                  <th scope="col">Retorno</th>
+                  <th scope="col">Espera</th>
+                  <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                </tr>
+              </thead>
+              <tbody id="process-rows"></tbody>
+            </table>
+          </div>
+          <div class="panel-footline">
+            <div class="status-text" id="status-text" role="status" aria-live="polite"><span class="status-symbol">✓</span> Todos los cálculos están actualizados.</div>
+            <span class="table-tip">Valores enteros · Llegada ≥ 0 · Ejecución &gt; 0</span>
+          </div>
+        </div>
+
+        <div class="metrics-grid" aria-label="Resultados generales">
+          <article class="metric-card">
+            <div class="metric-top"><span>Retorno promedio</span><span class="metric-symbol">↗</span></div>
+            <div class="metric-value"><span id="avg-return">15.25</span><small>u.t.</small></div>
+            <p>Tiempo medio desde la llegada hasta el final.</p>
+            <div class="metric-glow metric-glow-purple" aria-hidden="true"></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span>Espera promedio</span><span class="metric-symbol">◷</span></div>
+            <div class="metric-value"><span id="avg-wait">8.75</span><small>u.t.</small></div>
+            <p>Tiempo medio esperando para usar la CPU.</p>
+            <div class="metric-glow metric-glow-blue" aria-hidden="true"></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span>Final de la simulación</span><span class="metric-symbol">⌁</span></div>
+            <div class="metric-value"><span id="total-time">26</span><small>u.t.</small></div>
+            <p>Instante en que termina el último proceso.</p>
+            <div class="metric-glow metric-glow-pink" aria-hidden="true"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="gantt-section" id="gantt" aria-labelledby="gantt-heading">
+        <div class="section-heading compact-heading">
+          <div>
+            <div class="section-kicker">02 / REPRESENTACIÓN VISUAL</div>
+            <h2 id="gantt-heading">Línea de tiempo <span class="heading-muted">/ Gantt</span></h2>
+            <p>Los procesos se ejecutan por orden de llegada y sin interrupciones.</p>
+          </div>
+          <button class="button-secondary" type="button" id="animate-button"><span aria-hidden="true">▷</span> Reproducir animación</button>
+        </div>
+        <div class="panel gantt-panel">
+          <div class="gantt-panel-title"><span class="running-dot"></span> EJECUCIÓN DE LA CPU <span class="gantt-subtitle">· Orden FIFO</span></div>
+          <div class="gantt-scroll"><div id="gantt-track" class="gantt-track" aria-label="Diagrama de Gantt"></div></div>
+          <div id="gantt-legend" class="gantt-legend" aria-label="Leyenda del diagrama"></div>
+          <div class="gantt-note"><span aria-hidden="true">ⓘ</span> Una sección gris indica que la CPU estuvo inactiva. <strong>u.t.</strong> = unidades de tiempo simuladas.</div>
+        </div>
+      </section>
+
+      <section class="formulas-section" id="formulas" aria-labelledby="formulas-title">
+        <div class="section-kicker">03 / GUÍA RÁPIDA</div>
+        <h2 id="formulas-title">Cuatro operaciones. <span class="heading-muted">Todo resuelto.</span></h2>
+        <div class="formula-grid">
+          <div class="formula"><span class="formula-number">01</span><strong>Inicio</strong><code>max(reloj, llegada)</code></div>
+          <div class="formula"><span class="formula-number">02</span><strong>Final</strong><code>inicio + ejecución</code></div>
+          <div class="formula"><span class="formula-number">03</span><strong>Retorno</strong><code>final − llegada</code></div>
+          <div class="formula"><span class="formula-number">04</span><strong>Espera</strong><code>inicio − llegada</code></div>
+        </div>
+        <p class="final-explainer">Cuando termina un proceso, su <strong>final</strong> pasa a ser el nuevo <strong>reloj</strong>. En la versión C++, <code>&lt;chrono&gt;</code> mide el tiempo real del cálculo: es diferente de las unidades de tiempo simuladas aquí.</p>
+      </section>
+    </main>
+
+    <footer class="footer content-width"><span class="footer-brand">◈ FIFO<span>studio</span></span><span>Algoritmos de planificación · Proyecto educativo</span><a href="#inicio">Volver arriba ↑</a></footer>
+  </div>
+</body>
+</html>
